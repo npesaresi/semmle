@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.mercadolibre</groupId>
+	<artifactId>furytestapp</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>war</packaging>
+
+	<name>furytestapp</name>
+
+	<profiles>
+		<profile>
+			<id>production</id>
+			<activation>
+				<property>
+					<name>env.ENVIRONMENT</name>
+					<value>production</value>
+				</property>
+			</activation>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/resources/production</directory>
+					</resource>
+				</resources>
+			</build>
+		</profile>
+
+		<profile>
+			<id>development</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/resources/development</directory>
+					</resource>
+				</resources>
+			</build>
+		</profile>
+	</profiles>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<restclient.version>0.2.17</restclient.version>
+		<mqclient.version>0.0.43</mqclient.version>
+		<kvsclient.version>0.1.4</kvsclient.version>
+		<dsclient.version>1.0.18</dsclient.version>
+		<junit.jupiter.version>5.0.3</junit.jupiter.version>
+		<junit.params.version>${junit.jupiter.version}</junit.params.version>
+		<junit.platform.version>1.0.3</junit.platform.version>
+		<!--
+            Junit 5 works with this version
+            See http://junit.org/junit5/docs/current/user-guide/#running-tests-build-maven
+        -->
+		<surefire.version>2.19.1</surefire.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${surefire.version}</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.junit.platform</groupId>
+						<artifactId>junit-platform-surefire-provider</artifactId>
+						<version>${junit.platform.version}</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<forkCount>1</forkCount>
+					<reuseForks>true</reuseForks>
+					<argLine>${argLine} -Xmx1g -Xms1g</argLine>
+					<useFile>false</useFile>
+					<trimStackTrace>false</trimStackTrace>
+					<redirectTestOutputToFile>false</redirectTestOutputToFile>
+					<environmentVariables>
+						<!-- remove if KVS service is not needed -->
+						<KEY_VALUE_STORE_ITEMS_DUMMY_CONTAINER_NAME>items_test__fury_test</KEY_VALUE_STORE_ITEMS_DUMMY_CONTAINER_NAME>
+
+						<!-- remove if DS service is not needed -->
+						<DOCUMENT_SEARCH_ITEMS_DUMMY_WRITE_ENDPOINT>http://localhost</DOCUMENT_SEARCH_ITEMS_DUMMY_WRITE_ENDPOINT>
+						<DOCUMENT_SEARCH_ITEMS_DUMMY_READ_ENDPOINT>http://localhost</DOCUMENT_SEARCH_ITEMS_DUMMY_READ_ENDPOINT>
+						<DOCUMENT_SEARCH_ITEMS_DUMMY_NAMESPACE>items_dummy</DOCUMENT_SEARCH_ITEMS_DUMMY_NAMESPACE>
+						<DOCUMENT_SEARCH_ITEMS_DUMMY_ENTITY>items_dummy</DOCUMENT_SEARCH_ITEMS_DUMMY_ENTITY>
+
+						<!-- remove if BigQ service is not needed -->
+						<BIGQUEUE_TOPIC_ITEMS_DUMMY_CLUSTER_NAME>test</BIGQUEUE_TOPIC_ITEMS_DUMMY_CLUSTER_NAME>
+						<BIGQUEUE_TOPIC_ITEMS_DUMMY_TOPIC_NAME>items-dummy</BIGQUEUE_TOPIC_ITEMS_DUMMY_TOPIC_NAME>
+					</environmentVariables>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>${surefire.version}</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.9</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.7.9</version>
+				<executions>
+					<execution>
+						<id>default-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-check</id>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<rule>
+									<element>CLASS</element>
+									<excludes>
+										<exclude>*Test</exclude>
+									</excludes>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.0</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
+					<execution>
+						<id>pre-unit-test</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+						<configuration>
+							<destFile>target/jacoco.exec</destFile>
+							<propertyName>argLine</propertyName>
+						</configuration>
+					</execution>
+					<execution>
+						<id>post-unit-test</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<dataFile>target/jacoco.exec</dataFile>
+							<outputDirectory>target/site/jacoco</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.7.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<optimize>true</optimize>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<attachClasses>true</attachClasses>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.6.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>java</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<mainClass>com.mercadolibre.Main</mainClass>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>Arquitectura</id>
+			<url>http://git.ml.com/nexus/content/groups/Arquitectura</url>
+		</repository>
+		<repository>
+			<id>arquitectura.releases</id>
+			<url>http://git.ml.com/nexus/content/repositories/releases</url>
+		</repository>
+		<repository>
+			<id>arquitectura_grails</id>
+			<name>Nexus Arquitectura</name>
+			<url>http://git.ml.com/nexus/content/repositories/MLGrailsPlugins</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit.jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.mercadolibre.restclient</groupId>
+			<artifactId>restclient-core</artifactId>
+			<version>${restclient.version}</version>
+			<scope>test</scope>
+			<classifier>tests</classifier>
+		</dependency>
+
+		<!-- remove if KVS service is not needed -->
+		<dependency>
+			<groupId>com.mercadolibre</groupId>
+			<artifactId>kvsclient</artifactId>
+			<version>${kvsclient.version}</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- remove if DS service is not needed -->
+		<dependency>
+			<groupId>com.mercadolibre</groupId>
+			<artifactId>dsclient</artifactId>
+			<version>${dsclient.version}</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>3.0.5</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpclient</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpmime</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.mercadolibre.restclient</groupId>
+			<artifactId>restclient-default</artifactId>
+			<version>${restclient.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.mercadolibre.json_jackson</groupId>
+					<artifactId>json-jackson</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.mercadolibre.json</groupId>
+					<artifactId>json-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.mercadolibre.metrics</groupId>
+					<artifactId>metrics-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-lang3</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sparkjava</groupId>
+			<artifactId>spark-core</artifactId>
+			<version>2.6.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpclient</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.google.code.gson</groupId>
+					<artifactId>gson</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-configuration2</artifactId>
+			<version>2.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.25</version>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.newrelic.agent.java</groupId>
+			<artifactId>newrelic-api</artifactId>
+			<version>3.38.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>23.2-jre</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.mercadolibre.json</groupId>
+			<artifactId>json-core</artifactId>
+			<version>0.0.9</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.mercadolibre.json_jackson</groupId>
+			<artifactId>json-jackson</artifactId>
+			<version>0.0.9</version>
+		</dependency>
+
+		<!-- remove if BigQ service is not needed -->
+		<dependency>
+			<groupId>com.mercadolibre</groupId>
+			<artifactId>mqclient</artifactId>
+			<version>${mqclient.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.mercadolibre.restclient</groupId>
+					<artifactId>restclient-default</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.mercadolibre.metrics</groupId>
+					<artifactId>metrics-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.mercadolibre.resilience</groupId>
+			<artifactId>resilience-core</artifactId>
+			<version>0.0.15</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.mercadolibre.metrics</groupId>
+					<artifactId>metrics-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.mercadolibre.metrics</groupId>
+			<artifactId>metrics-core</artifactId>
+			<version>0.0.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.mercadolibre.metrics</groupId>
+			<artifactId>datadog-metric-wrapper</artifactId>
+			<version>0.0.3</version>
+		</dependency>
+
+		<!-- uncomment to use newrelic for custom metrics. You must eliminate datadog-metric-wrapper dependency -->
+		<!--<dependency>
+			<groupId>com.mercadolibre.metrics</groupId>
+			<artifactId>newrelic-metric-wrapper</artifactId>
+			<version>0.0.3</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.newrelic.agent.java</groupId>
+					<artifactId>newrelic-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>-->
+
+		<!-- remove if KVS service is not needed -->
+		<dependency>
+			<groupId>com.mercadolibre</groupId>
+			<artifactId>kvsclient</artifactId>
+			<version>${kvsclient.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.mercadolibre.restclient</groupId>
+					<artifactId>restclient-default</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.mercadolibre.metrics</groupId>
+					<artifactId>metrics-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- remove if DS service is not needed -->
+		<dependency>
+			<groupId>com.mercadolibre</groupId>
+			<artifactId>dsclient</artifactId>
+			<version>${dsclient.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.mercadolibre.restclient</groupId>
+					<artifactId>restclient-default</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.mercadolibre.metrics</groupId>
+					<artifactId>metrics-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+</project>
