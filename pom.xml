@@ -211,21 +211,6 @@
 		</plugins>
 	</build>
 
-	<repositories>
-		<repository>
-			<id>Arquitectura</id>
-			<url>http://git.ml.com/nexus/content/groups/Arquitectura</url>
-		</repository>
-		<repository>
-			<id>arquitectura.releases</id>
-			<url>http://git.ml.com/nexus/content/repositories/releases</url>
-		</repository>
-		<repository>
-			<id>arquitectura_grails</id>
-			<name>Nexus Arquitectura</name>
-			<url>http://git.ml.com/nexus/content/repositories/MLGrailsPlugins</url>
-		</repository>
-	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -234,31 +219,7 @@
 			<version>${junit.jupiter.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.mercadolibre.restclient</groupId>
-			<artifactId>restclient-core</artifactId>
-			<version>${restclient.version}</version>
-			<scope>test</scope>
-			<classifier>tests</classifier>
-		</dependency>
 
-		<!-- remove if KVS service is not needed -->
-		<dependency>
-			<groupId>com.mercadolibre</groupId>
-			<artifactId>kvsclient</artifactId>
-			<version>${kvsclient.version}</version>
-			<classifier>tests</classifier>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- remove if DS service is not needed -->
-		<dependency>
-			<groupId>com.mercadolibre</groupId>
-			<artifactId>dsclient</artifactId>
-			<version>${dsclient.version}</version>
-			<classifier>tests</classifier>
-			<scope>test</scope>
-		</dependency>
 
 		<dependency>
 			<groupId>io.rest-assured</groupId>
@@ -277,33 +238,6 @@
 			</exclusions>
 		</dependency>
 
-		<dependency>
-			<groupId>com.mercadolibre.restclient</groupId>
-			<artifactId>restclient-default</artifactId>
-			<version>${restclient.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.mercadolibre.json_jackson</groupId>
-					<artifactId>json-jackson</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.mercadolibre.json</groupId>
-					<artifactId>json-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.mercadolibre.metrics</groupId>
-					<artifactId>metrics-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.commons</groupId>
-					<artifactId>commons-lang3</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
 
 		<dependency>
 			<groupId>com.sparkjava</groupId>
@@ -345,11 +279,6 @@
 			</exclusions>
 		</dependency>
 
-		<dependency>
-			<groupId>com.newrelic.agent.java</groupId>
-			<artifactId>newrelic-api</artifactId>
-			<version>3.38.0</version>
-		</dependency>
 
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -357,64 +286,6 @@
 			<version>23.2-jre</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.mercadolibre.json</groupId>
-			<artifactId>json-core</artifactId>
-			<version>0.0.9</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.mercadolibre.json_jackson</groupId>
-			<artifactId>json-jackson</artifactId>
-			<version>0.0.9</version>
-		</dependency>
-
-		<!-- remove if BigQ service is not needed -->
-		<dependency>
-			<groupId>com.mercadolibre</groupId>
-			<artifactId>mqclient</artifactId>
-			<version>${mqclient.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.mercadolibre.restclient</groupId>
-					<artifactId>restclient-default</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.mercadolibre.metrics</groupId>
-					<artifactId>metrics-core</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>com.mercadolibre.resilience</groupId>
-			<artifactId>resilience-core</artifactId>
-			<version>0.0.15</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.mercadolibre.metrics</groupId>
-					<artifactId>metrics-core</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>com.mercadolibre.metrics</groupId>
-			<artifactId>metrics-core</artifactId>
-			<version>0.0.3</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.6</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.mercadolibre.metrics</groupId>
-			<artifactId>datadog-metric-wrapper</artifactId>
-			<version>0.0.3</version>
-		</dependency>
 
 		<!-- uncomment to use newrelic for custom metrics. You must eliminate datadog-metric-wrapper dependency -->
 		<!--<dependency>
@@ -430,42 +301,5 @@
 		</dependency>-->
 
 		<!-- remove if KVS service is not needed -->
-		<dependency>
-			<groupId>com.mercadolibre</groupId>
-			<artifactId>kvsclient</artifactId>
-			<version>${kvsclient.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.mercadolibre.restclient</groupId>
-					<artifactId>restclient-default</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.mercadolibre.metrics</groupId>
-					<artifactId>metrics-core</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<!-- remove if DS service is not needed -->
-		<dependency>
-			<groupId>com.mercadolibre</groupId>
-			<artifactId>dsclient</artifactId>
-			<version>${dsclient.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.mercadolibre.restclient</groupId>
-					<artifactId>restclient-default</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.mercadolibre.metrics</groupId>
-					<artifactId>metrics-core</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-	</dependencies>
 
 </project>
