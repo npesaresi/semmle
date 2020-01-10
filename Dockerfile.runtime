@@ -1,0 +1,4 @@
+  
+FROM hub.furycloud.io/mercadolibre/tomcat:8.5-jdk8
+
+ENV JAVA_OPTS="-server -Dlog4j.configuration=log4j.xml"
